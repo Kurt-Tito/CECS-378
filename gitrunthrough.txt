@@ -1,0 +1,86 @@
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 ~
+$ cd
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 ~
+$ cd /c
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c
+$ ls
+'$Recycle.Bin'/             logs/                   swapfile.sys
+ Android/                   OEM/                   'System Volume Information'/
+ bootmgr                    pagefile.sys            Users/
+ BOOTNXT                    PerfLogs/               var/
+ Config.Msi/               'Program Files'/         Windows/
+'Documents and Settings'@  'Program Files (x86)'/   Windows.old/
+ git/                       ProgramData/            Windows10Upgrade/
+ hiberfil.sys               Recovery/               Xilinx/
+ Intel/                    'Riot Games'/
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c
+$ cd git/
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git
+$ ls
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git
+$ git config --global user.name "KurtTito"
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git
+$ git config --global user.email kurtcedricktito@gmail.com
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git
+$ git clone https://github.com/KurtTito/CECS-378.git
+Cloning into 'CECS-378'...
+remote: Counting objects: 3, done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (3/3), done.
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git
+$ ls
+CECS-378/
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git
+$ cd CECS-378/
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git/CECS-378 (master)
+$ ls
+README.md
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git/CECS-378 (master)
+$ ls
+ README.md  'Testing Github.txt'
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git/CECS-378 (master)
+$ git add 'Testing Github.txt'
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git/CECS-378 (master)
+$ git status
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        new file:   Testing Github.txt
+
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git/CECS-378 (master)
+$ git commit -m "first commit" 'Testing Github.txt'
+[master 520f817] first commit
+ 1 file changed, 1 insertion(+)
+ create mode 100644 Testing Github.txt
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git/CECS-378 (master)
+$ git push -u origin master
+Counting objects: 3, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 308 bytes | 308.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To https://github.com/KurtTito/CECS-378.git
+   e3bdc4d..520f817  master -> master
+Branch 'master' set up to track remote branch 'master' from 'origin'.
+
+Kurt Tito@LAPTOP-JFIK365E MINGW64 /c/git/CECS-378 (master)
+$
