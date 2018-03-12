@@ -6,11 +6,6 @@ Created on Thu Mar  1 12:57:35 2018
 @author: winn
 """
 
-<<<<<<< HEAD
-import Myencrypt
-import MyfileEncrypt
-import MyRSAEncrypt
-=======
 import os, sys
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -55,10 +50,5 @@ def Decrypt(ciphertext, iv, key):
     #
     
     
-    
-    
-    
-        
-    
->>>>>>> origin/master
+
 
