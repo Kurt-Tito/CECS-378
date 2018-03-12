@@ -4,16 +4,14 @@ from cryptography.hazmat.backends import default_backend
 
 def generateIV():
     IV = os.urandom(16)
+    fileName = "IV.txt"
+    myFile = open(fileName, 'w')
+    myFile.write(fileName)
+    myFile.close()
     return IV
 
-def generateKey():
-    key = os.urandom(32)
-    return key
-
-
-def Myencrypt():
+def Myencrypt(message, key):
     IV = generateIV()
-    key = generateKey()
     if len(key) < 32:
         print("Error, length of key is less than 32")
         return 0
@@ -21,6 +19,9 @@ def Myencrypt():
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend)
     encryptor = cipher.encryptor()
 
-    ct = encryptor.update(b"a secret message") + encryptor.finalize()
+    ct = encryptor.update(message) + encryptor.finalize()
+    return ct
+
+def Mydecrypt():
     decryptor = cipher.decryptor()
     decryptor.update(ct) + decryptor.finalize()
