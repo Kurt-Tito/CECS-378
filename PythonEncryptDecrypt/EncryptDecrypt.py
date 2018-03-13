@@ -48,7 +48,14 @@ def Decrypt(ciphertext, iv, key):
     # IN
     # PROGRESS
     #
-    
-    
+
+    # Creates AES CBC cipher
+    cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
+
+    # Creates Decryptor for cipher
+    decryptor = cipher.decryptor()
+
+    # Decypts ciphertext
+    return decryptor.update(ct) + decryptor.finalize()
 
 
