@@ -12,21 +12,20 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
 def Encrypt(message, key):
-    #Exception to check if key is less than 32
-        while (len(key) < 32):
-            try:
-                raise Exception('Value Error')
-            except Exception as error:
-                print ("This key is less than 32 bytes")
-                sys.exit(0)
+    #Check if key is less than 32
+        if (len(key) < 32):
+            print ("This key is less than 32 bytes")
+            sys.exit(0)
+            
     #Convert key and message into bytes
         message_bytes = bytes(message, 'utf-8')
         key_bytes = bytes(key, 'utf-8')
        
-    #Padding
+    #Create Padder
         padder = padding.PKCS7(128).padder()
-        padded_message_bytes = padder.update(message_bytes)
-        padded_message_bytes += padder.finalize()
+    
+    #Padding message in bytes
+        padded_message_bytes = padder.update(message_bytes) + padder.finalize()
         
     #Generate random IV
         iv = os.urandom(16)
@@ -43,19 +42,41 @@ def Encrypt(message, key):
     
 
 def Decrypt(ciphertext, iv, key):
-    #
-    # WORK 
-    # IN
-    # PROGRESS
-    #
+    #Convert key to bytes
+        key_bytes = bytes(key, 'utf-8')
+        
+    #Create AES CBC cipher
+        cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
 
-    # Creates AES CBC cipher
-    cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
+    #Create Decryptor for cipher
+        decryptor = cipher.decryptor()
+    
+    #Original Message but in bytes with padding
+        message_bytes_padded = decryptor.update(ciphertext) + decryptor.finalize()
+        
+    #Create unpadder
+        unpadder = padding.PKCS7(128).unpadder()
+    
+    #Unpadding message in bytes
+        message_bytes= unpadder.update(message_bytes_padded) + unpadder.finalize()
+    
+    #Convert message in bytes form to string
+        message = message_bytes.decode('utf-8')
+        return message
+    
+    
+## TESTER ##
+#message = input('Enter message to Encrypt ')
+#key = input('Enter key for encryption ')
+#print('Encrypting... ')
+#ciphertext_iv = Encrypt(message, key)
+#print('Ciphertext : ', ciphertext_iv)
+#print('Decrypting... ')
+#ciphertext = str(ciphertext_iv)[1:(len(ciphertext_iv)/2)]
+#iv = str(ciphertext_iv)[(len(ciphertext_iv)/2):-1]
+#original_message = Decrypt(ciphertext, iv, key)
+#print('Original Message: ', original_message)
 
-    # Creates Decryptor for cipher
-    decryptor = cipher.decryptor()
 
-    # Decypts ciphertext
-    return decryptor.update(ct) + decryptor.finalize()
 
 
