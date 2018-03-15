@@ -26,7 +26,7 @@ def generateKey():
 #def MyfileDecrypt(fileName):
 
 ##################################################################
-    
+import json
 import os, sys
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -99,12 +99,25 @@ def MyfileEncrypt(filepath):
         enc = Encrypt(content, key)
         ciphertext = enc[0]
         iv = enc [1]
-    #return ct, iv, key, ext
-        return ciphertext, iv, key, ext
+
+    # Writing JSON data
+        #data = {
+            #'Ciphertext': ciphertext,
+            #'IV': iv,
+            #'Key': key,
+            #'Extension': ext
+    #}
+    #with open('data.json', 'w') as f:
+    #json.dump(data, f)
+
+    # return ct, iv, key, ext
+        return ciphertext, iv, key, ext #
     
 def MyfileDecrypt(ciphertext, iv, key, ext):
+    #with open('data.json', 'r') as f:
+    #data = json.load(f)
     #Decrypt 
-        content = Decrypt(ciphertext, iv, key)
+        content = Decrypt(ciphertext, iv, key) #add f. to variables to read it from json file
     
     #Save file 
         saveFile = "C://Users//TITO//Desktop//TEST//file"
