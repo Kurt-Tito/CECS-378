@@ -39,9 +39,7 @@ def Encrypt(message, key):
             sys.exit(0)
 
     #Convert key and message into bytes
-        #message_bytes = bytes(message, 'utf-8')
         message_bytes = bytes(message)
-        #key_bytes = bytes(key, 'utf-8')
         key_bytes = bytes(key)
        
     #Create Padder
@@ -52,7 +50,6 @@ def Encrypt(message, key):
         
     #Generate random IV
         iv = os.urandom(16)
-        #iv_bytes = bytes(iv)
     
     #Creates AES CBC cipher
         cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
@@ -66,10 +63,7 @@ def Encrypt(message, key):
     
 def Decrypt(ciphertext, iv, key):
     #Convert key to bytes
-        #key_bytes = bytes(key, 'utf-8')
-        #iv_bytes = bytes(iv, 'utf-8')
         key_bytes = bytes(key)
-        #iv_bytes = bytes(iv)
         
     #Create AES CBC cipher
         cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
@@ -87,32 +81,29 @@ def Decrypt(ciphertext, iv, key):
         message_bytes= unpadder.update(message_bytes_padded) + unpadder.finalize()
     
     #Convert message in bytes form to string
-        #message = message_bytes.decode('utf-8')
-        #message = message_bytes
-        #return message
         return message_bytes
     
 def MyfileEncrypt(filepath):
     #Open file as bytes
         with open(filepath, "rb") as f:
-            #content = f.read()
             byte_array = bytearray(f.read())
             content = bytes(byte_array)
-            #byte_string = bytes(byte_array)
-        
+
     #Generate key
         key = os.urandom(32)
     
     #Get file extension
         filename, ext = os.path.splitext(filepath)
-        
-    #return
-        return Encrypt(content, key), key, ext
     
-
+    #Call Encrypt module
+        enc = Encrypt(content, key)
+        ciphertext = enc[0]
+        iv = enc [1]
+    #return ct, iv, key, ext
+        return ciphertext, iv, key, ext
+    
 def MyfileDecrypt(ciphertext, iv, key, ext):
     #Decrypt 
-        #content = Decrypt(str(ciphertext), str(iv), str(key))
         content = Decrypt(ciphertext, iv, key)
     
     #Save file 
