@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Mar  1 12:57:35 2018
-
 @author: winn
 """
 
@@ -16,7 +15,7 @@ def Encrypt(message, key):
         if (len(key) < 32):
             print ("This key is less than 32 bytes")
             sys.exit(0)
-
+            
     #Convert key and message into bytes
         message_bytes = bytes(message, 'utf-8')
         key_bytes = bytes(key, 'utf-8')
@@ -65,5 +64,4 @@ def Decrypt(ciphertext, iv, key):
         return message
     
     
-
-
+    
