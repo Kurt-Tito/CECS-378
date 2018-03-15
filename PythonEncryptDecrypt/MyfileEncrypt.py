@@ -1,36 +1,8 @@
-import base64
-
-def openPicture(fileName):
-    with open("t.png", "rb") as imageFile:
-        pictureString = base64.b64encode(imageFile.read())
-    return pictureString
-
-def createPicture(picture):
-    fh = open("imageToSave.png", "wb")
-    fh.write(picture.decode('base64'))
-    fh.close()
-
-def generateKey():
-    key = os.urandom(32)
-    fileName = "Key.txt"
-    myFile = open(fileName, 'w')
-    myFile.write(fileName)
-    myFile.close()
-    return key
-
-#def MyfileEncrypt(fileName):
-#    key = generateKey()
-#    pictureString = openPicture(fileName)
-#    Myencrypt(pictureString, key)
-
-#def MyfileDecrypt(fileName):
-
-##################################################################
-import json
 import os, sys
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+import json
 
 def Encrypt(message, key):
     #Check if key is less than 32
@@ -58,10 +30,10 @@ def Encrypt(message, key):
         encryptor = cipher.encryptor()
     
     #Create ciphertext
-        ciphertext = encryptor.update(padded_message_bytes) + encryptor.finalize()
-        return ciphertext, iv
+        c = encryptor.update(padded_message_bytes) + encryptor.finalize()
+        return c, iv
     
-def Decrypt(ciphertext, iv, key):
+def Decrypt(c, iv, key):
     #Convert key to bytes
         key_bytes = bytes(key)
         
@@ -72,7 +44,7 @@ def Decrypt(ciphertext, iv, key):
         decryptor = cipher.decryptor()
     
     #Original Message but in bytes with padding
-        message_bytes_padded = decryptor.update(ciphertext) + decryptor.finalize()
+        message_bytes_padded = decryptor.update(c) + decryptor.finalize()
         
     #Create unpadder
         unpadder = padding.PKCS7(256).unpadder()
@@ -97,30 +69,35 @@ def MyfileEncrypt(filepath):
     
     #Call Encrypt module
         enc = Encrypt(content, key)
-        ciphertext = enc[0]
+        c = enc[0]
         iv = enc [1]
-
-    # Writing JSON data
-        #data = {
-            #'Ciphertext': ciphertext,
-            #'IV': iv,
-            #'Key': key,
-            #'Extension': ext
-    #}
-    #with open('data.json', 'w') as f:
-    #json.dump(data, f)
-
-    # return ct, iv, key, ext
-        return ciphertext, iv, key, ext #
+    #return ct, iv, key, ext
+        
+        c_string = str(c)
+        iv_string = str(iv)
+        key_string = str(key)
+        ext_string = str(ext)
+        
+    #Write to JSON
+        data = {'c': c_string,
+                'iv': iv_string,
+                'key': key_string,
+                'ext': ext_string
+        }
+        with open('C://Users//Kurt Tito//Desktop//CECS-378-File-EncDec-Tester//data.json', 'w') as f:
+            json.dump(data, f)
+            
+        return c, iv, key, ext
     
-def MyfileDecrypt(ciphertext, iv, key, ext):
-    #with open('data.json', 'r') as f:
-    #data = json.load(f)
+def MyfileDecrypt(c, iv, key, ext):
     #Decrypt 
-        content = Decrypt(ciphertext, iv, key) #add f. to variables to read it from json file
+        content = Decrypt(c, iv, key)
     
+    with open('C://Users//Kurt Tito//Desktop//CECS-378-File-EncDec-Tester//data.json', 'r') as f:
+        data = json.load(f)
+        
     #Save file 
-        saveFile = "C://Users//TITO//Desktop//TEST//file"
+        saveFile = "C://Users//Kurt Tito//Desktop//CECS-378-File-EncDec-Tester//Output//file"
         saveFile += ext
         f = open(saveFile, "wb")
         #f.write(bytearray(content, 'utf-8'))
