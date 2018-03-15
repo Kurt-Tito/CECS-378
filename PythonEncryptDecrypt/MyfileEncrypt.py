@@ -39,7 +39,8 @@ def Encrypt(message, key):
             sys.exit(0)
 
     #Convert key and message into bytes
-        message_bytes = bytes(message, 'utf-8')
+        #message_bytes = bytes(message, 'utf-8')
+        message_bytes = bytes(message)
         #key_bytes = bytes(key, 'utf-8')
         key_bytes = bytes(key)
        
@@ -51,6 +52,7 @@ def Encrypt(message, key):
         
     #Generate random IV
         iv = os.urandom(16)
+        #iv_bytes = bytes(iv)
     
     #Creates AES CBC cipher
         cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
@@ -67,10 +69,10 @@ def Decrypt(ciphertext, iv, key):
         #key_bytes = bytes(key, 'utf-8')
         #iv_bytes = bytes(iv, 'utf-8')
         key_bytes = bytes(key)
-        iv_bytes = bytes(iv)
+        #iv_bytes = bytes(iv)
         
     #Create AES CBC cipher
-        cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv_bytes), default_backend())
+        cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
 
     #Create Decryptor for cipher
         decryptor = cipher.decryptor()
@@ -79,15 +81,16 @@ def Decrypt(ciphertext, iv, key):
         message_bytes_padded = decryptor.update(ciphertext) + decryptor.finalize()
         
     #Create unpadder
-        unpadder = padding.PKCS7(128).unpadder()
+        unpadder = padding.PKCS7(256).unpadder()
     
     #Unpadding message in bytes
         message_bytes= unpadder.update(message_bytes_padded) + unpadder.finalize()
     
     #Convert message in bytes form to string
         #message = message_bytes.decode('utf-8')
-        message = message_bytes
-        return message
+        #message = message_bytes
+        #return message
+        return message_bytes
     
 def MyfileEncrypt(filepath):
     #Open file as bytes
@@ -104,7 +107,7 @@ def MyfileEncrypt(filepath):
         filename, ext = os.path.splitext(filepath)
         
     #return
-        return Encrypt(str(content), key), key, ext
+        return Encrypt(content, key), key, ext
     
 
 def MyfileDecrypt(ciphertext, iv, key, ext):
