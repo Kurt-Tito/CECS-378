@@ -38,17 +38,21 @@ def Encrypt(message, key):
 def Decrypt(c, iv, key):
     #Convert key to bytes
         key_bytes = binascii.unhexlify(key.encode('utf-8'))
-        print(type(key_bytes))
+    #Convert IV to bytes
+        iv_bytes = binascii.unhexlify(iv.encode('utf-8'))
+    #Convert c to bytes
+        c_bytes = binascii.unhexlify(c.encode('utf-8'))    
+        print("Cbytes converted from string back to bytes")
+        print(c_bytes)
     #Create AES CBC cipher
-        print("Key as bytes:")
-        print(key_bytes)
-        cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
+
+        cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv_bytes), default_backend())
 
     #Create Decryptor for cipher
         decryptor = cipher.decryptor()
     
     #Original Message but in bytes with padding
-        message_bytes_padded = decryptor.update(c) + decryptor.finalize()
+        message_bytes_padded = decryptor.update(c_bytes) + decryptor.finalize()
         
     #Create unpadder
         unpadder = padding.PKCS7(256).unpadder()
@@ -64,28 +68,33 @@ def MyfileEncrypt(filename):
         with open(filename, "rb") as f:
             byte_array = bytearray(f.read())
             content = bytes(byte_array)
-
+        
     #Generate key
         key = os.urandom(32)
-        print("Key as bytes:")
-        print(key)
-        print("~~~~~~~~~~~~~~~")
+
     #Get file extension
         filename, ext = os.path.splitext(filename)
     
     #Call Encrypt module
         enc = Encrypt(content, key)
         c = enc[0]
+        print(c)
         iv = enc [1]
     #return ct, iv, key, ext
+    
+    
         hex_key = binascii.hexlify(key)
-        c_string = str(c)
-        iv_string = str(iv)
+        hex_iv = binascii.hexlify(iv)
+        hex_c = binascii.hexlify(c)
+        
+        c_string = hex_c.decode('utf-8')
+        iv_string = hex_iv.decode('utf-8')
         key_string = hex_key.decode('utf-8')
         ext_string = str(ext)
-        print("Key as string:")
-        print(key_string)
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        
+        print("File in bytes converted tos string")
+        print(c_string)
+
     #Write to JSON
         data = {'c': c_string,
                 'iv': iv_string,
@@ -95,13 +104,13 @@ def MyfileEncrypt(filename):
         with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
             json.dump(data, f)
     
+    
+    
 def MyfileDecrypt():
     #Decrypt 
         with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
             data = json.load(f)
-        print("Key as string:")
-        print(data['key'])
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
         content = Decrypt(data['c'], data['iv'], data['key'],)
         ext = data['ext']
     #Save file 
