@@ -3,6 +3,7 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import json
+import binascii
 
 def Encrypt(message, key):
     #Check if key is less than 32
@@ -12,7 +13,8 @@ def Encrypt(message, key):
 
     #Convert key and message into bytes
         message_bytes = bytes(message)
-        key_bytes = bytes(key)
+        
+        key_bytes = key
        
     #Create Padder
         padder = padding.PKCS7(128).padder()
@@ -35,9 +37,11 @@ def Encrypt(message, key):
     
 def Decrypt(c, iv, key):
     #Convert key to bytes
-        key_bytes = bytes(key)
-        
+        key_bytes = binascii.unhexlify(key.encode('utf-8'))
+        print(type(key_bytes))
     #Create AES CBC cipher
+        print("Key as bytes:")
+        print(key_bytes)
         cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
 
     #Create Decryptor for cipher
@@ -55,51 +59,64 @@ def Decrypt(c, iv, key):
     #Convert message in bytes form to string
         return message_bytes
     
-def MyfileEncrypt(filepath):
+def MyfileEncrypt(filename):
     #Open file as bytes
-        with open(filepath, "rb") as f:
+        with open(filename, "rb") as f:
             byte_array = bytearray(f.read())
             content = bytes(byte_array)
 
     #Generate key
         key = os.urandom(32)
-    
+        print("Key as bytes:")
+        print(key)
+        print("~~~~~~~~~~~~~~~")
     #Get file extension
-        filename, ext = os.path.splitext(filepath)
+        filename, ext = os.path.splitext(filename)
     
     #Call Encrypt module
         enc = Encrypt(content, key)
         c = enc[0]
         iv = enc [1]
     #return ct, iv, key, ext
-        
+        hex_key = binascii.hexlify(key)
         c_string = str(c)
         iv_string = str(iv)
-        key_string = str(key)
+        key_string = hex_key.decode('utf-8')
         ext_string = str(ext)
-        
+        print("Key as string:")
+        print(key_string)
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     #Write to JSON
         data = {'c': c_string,
                 'iv': iv_string,
                 'key': key_string,
                 'ext': ext_string
         }
-        with open('C://Users//Kurt Tito//Desktop//CECS-378-File-EncDec-Tester//data.json', 'w') as f:
+        with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
             json.dump(data, f)
-            
-        return c, iv, key, ext
     
-def MyfileDecrypt(c, iv, key, ext):
+def MyfileDecrypt():
     #Decrypt 
-        content = Decrypt(c, iv, key)
-    
-    with open('C://Users//Kurt Tito//Desktop//CECS-378-File-EncDec-Tester//data.json', 'r') as f:
-        data = json.load(f)
-        
+        with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
+            data = json.load(f)
+        print("Key as string:")
+        print(data['key'])
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        content = Decrypt(data['c'], data['iv'], data['key'],)
+        ext = data['ext']
     #Save file 
-        saveFile = "C://Users//Kurt Tito//Desktop//CECS-378-File-EncDec-Tester//Output//file"
+        saveFile = "C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//file"
         saveFile += ext
         f = open(saveFile, "wb")
         #f.write(bytearray(content, 'utf-8'))
         f.write(bytearray(content))
         f.close
+
+
+def main():
+    filename = 'unknown.png'
+
+    MyfileEncrypt(filename)
+
+    MyfileDecrypt()
+    

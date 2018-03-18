@@ -1,0 +1,21 @@
+"C:\\Users\\winn\\Documents\\GitHub\\CECS-378\\PythonEncryptDecrypt"
+
+filename = 'unknown.png'
+
+MyfileEncrypt(filename)
+
+MyfileDecrypt()
+
+
+
+776
+
+        content = Decrypt(data['c'], data['iv'], data['key'],)
+        ext = data['ext']
+    #Save file 
+        saveFile = "C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//file"
+        saveFile += ext
+        f = open(saveFile, "wb")
+        #f.write(bytearray(content, 'utf-8'))
+        f.write(bytearray(content))
+        f.close
