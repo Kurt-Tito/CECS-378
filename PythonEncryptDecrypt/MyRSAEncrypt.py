@@ -81,7 +81,7 @@ def MyfileEncrypt(filename):
     #Call Encrypt module
         enc = Encrypt(content, key)
         c = enc[0]
-        print(c)
+        #print(c)
         iv = enc [1]
     #return ct, iv, key, ext
     
@@ -95,8 +95,8 @@ def MyfileEncrypt(filename):
         key_string = hex_key.decode('utf-8')
         ext_string = str(ext)
         
-        print("File in bytes converted tos string")
-        print(c_string)
+        #print("File in bytes converted tos string")
+        #print(c_string)
 
     #Write to JSON
         data = {'c': c_string,
@@ -130,7 +130,10 @@ def MyRSAEncrypt(filepath, RSA_PublicKey_filepath):
     with open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
             data = json.load(f)
     
-    key = data['key']
+    c = bytes(data['c'].encode('utf-8'))
+    iv = bytes(data['iv'].encode('utf-8'))
+    key = bytes(data['key'].encode('utf-8'))
+    ext = bytes(data['ext'].encode('utf-8'))
     
     with open (RSA_PublicKey_filepath, 'rb') as key_file:
         public_key = serialization.load_pem_public_key(key_file.read(), default_backend())
@@ -144,8 +147,13 @@ def MyRSAEncrypt(filepath, RSA_PublicKey_filepath):
                 label = None
             )
         )
-            
-    return RSACipher, data['c'], data['iv'], data['key']
+    
+    #hex_RSACipher = binascii.hexlify(RSACipher)
+    bytes_c = binascii.unhexlify(c)
+    bytes_iv = binascii.unhexlify(iv)
+    bytes_ext = bytes(ext)
+    
+    return RSACipher, bytes_c, bytes_iv, bytes_ext
 
 def main():
     
@@ -168,4 +176,4 @@ def main():
     filepath = "C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//unknown.png"
     RSA_PublicKey_filepath = 'C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem'
     
-    MyRSAEncrypt(filepath, RSA_PublicKey_filepath)
+    print(MyRSAEncrypt(filepath, RSA_PublicKey_filepath))
