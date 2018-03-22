@@ -33,15 +33,18 @@ def Encrypt(message, key):
     
     #Create ciphertext
         c = encryptor.update(padded_message_bytes) + encryptor.finalize()
-        return c, iv
+        
+        c_bytes = c.encode('utf-8')
+        iv_bytes = iv.encode('utf-8')
+        return c_bytes, iv_bytes
     
 def Decrypt(c, iv, key):
     #Convert key to bytes
-        key_bytes = binascii.unhexlify(key.encode('utf-8'))
+        key_bytes = bytes(key.encode('utf-8'))
     #Convert IV to bytes
-        iv_bytes = binascii.unhexlify(iv.encode('utf-8'))
+        iv_bytes = bytes(iv.encode('utf-8'))
     #Convert c to bytes
-        c_bytes = binascii.unhexlify(c.encode('utf-8'))    
+        c_bytes = bytes(c.encode('utf-8')) 
         print("Cbytes converted from string back to bytes")
         print(c_bytes)
     #Create AES CBC cipher
@@ -83,13 +86,13 @@ def MyfileEncrypt(filename):
     #return ct, iv, key, ext
     
     
-        hex_key = binascii.hexlify(key)
-        hex_iv = binascii.hexlify(iv)
-        hex_c = binascii.hexlify(c)
+        #hex_key = binascii.hexlify(key)
+        #hex_iv = binascii.hexlify(iv)
+        #hex_c = binascii.hexlify(c)
         
-        c_string = hex_c.decode('utf-8')
-        iv_string = hex_iv.decode('utf-8')
-        key_string = hex_key.decode('utf-8')
+        c_string = c.decode('utf-8')
+        iv_string = iv.decode('utf-8')
+        key_string = key.decode('utf-8')
         ext_string = str(ext)
         
         print("File in bytes converted tos string")
@@ -125,9 +128,11 @@ def MyfileDecrypt():
 
 
 def main():
-    filename = 'unknown.png'
+    #filename = 'unknown.png'
+    
+    filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//unknown.png'
 
-    MyfileEncrypt(filename)
+    MyfileEncrypt(filepath)
 
     MyfileDecrypt()
     

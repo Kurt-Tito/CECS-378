@@ -105,19 +105,21 @@ def MyfileEncrypt(filename):
                 'ext': ext_string
         }
         #with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
-        with open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
+        #with open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
             json.dump(data, f)
     
 def MyfileDecrypt():
     #Decrypt 
         #with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
-        with open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
             data = json.load(f)
 
         content = Decrypt(data['c'], data['iv'], data['key'],)
         ext = data['ext']
     #Save file 
-        saveFile = "C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//file"
+        #saveFile = "C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//file"
+        saveFile = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//file"
         saveFile += ext
         f = open(saveFile, "wb")
         #f.write(bytearray(content, 'utf-8'))
@@ -127,13 +129,14 @@ def MyfileDecrypt():
 def MyRSAEncrypt(filepath, RSA_PublicKey_filepath):
     
     MyfileEncrypt(filepath)
-    with open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
             data = json.load(f)
     
-    c = bytes(data['c'].encode('utf-8'))
-    iv = bytes(data['iv'].encode('utf-8'))
-    key = bytes(data['key'].encode('utf-8'))
-    ext = bytes(data['ext'].encode('utf-8'))
+    #in bytes
+    c = binascii.unhexlify(data['c'].encode('utf-8'))
+    iv = binascii.unhexlify(data['iv'].encode('utf-8'))
+    key = binascii.unhexlify(data['key'].encode('utf-8'))
+    ext = data['ext']
     
     with open (RSA_PublicKey_filepath, 'rb') as key_file:
         public_key = serialization.load_pem_public_key(key_file.read(), default_backend())
@@ -148,32 +151,127 @@ def MyRSAEncrypt(filepath, RSA_PublicKey_filepath):
             )
         )
     
-    #hex_RSACipher = binascii.hexlify(RSACipher)
-    bytes_c = binascii.unhexlify(c)
-    bytes_iv = binascii.unhexlify(iv)
-    bytes_ext = bytes(ext)
+    '''
+    hex_RSACipher = binascii.hexlify(RSACipher)
+    hex_c = binascii.hexlify(c)
+    hex_iv = binascii.hexlify(iv)
+    hex_ext = binascii.hexlify(ext)
+    '''
     
-    return RSACipher, bytes_c, bytes_iv, bytes_ext
+    RSACipher_string = binascii.hexlify(RSACipher).decode('utf-8')
+    c_string = binascii.hexlify(c).decode('utf-8')
+    iv_string = binascii.hexlify(iv).decode('utf-8')
+    ext_string = ext
+    
+    #Write to JSON
+    data = {'RSACipher': RSACipher_string, 
+            'c': c_string,
+            'iv': iv_string,
+            'ext': ext_string
+            }
+    
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'w') as f:
+        json.dump(data, f)
+    
+    #return RSACipher, bytes_c, bytes_iv, bytes_ext
+    #return hex_RSACipher, hex_c, hex_iv, hex_ext
+    return RSACipher, c, iv, ext
+    print (RSACipher, c, iv, ext)
+
+def MyRSADecrypt(RSA_PrivateKey_filepath):
+    
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'r') as f:
+        rsa_data = json.load(f)
+    
+    
+    with open(RSA_PrivateKey_filepath, 'rb') as key_file:
+       private_key = serialization.load_pem_private_key(
+                key_file.read(),
+                password = None,
+                backend = default_backend()
+            )
+       
+    #in bytes
+    RSACipher = binascii.unhexlify(rsa_data['RSACipher'].encode('utf-8'))
+    c = binascii.unhexlify(rsa_data['c'].encode('utf-8'))
+    iv = binascii.unhexlify(rsa_data['iv'].encode('utf-8'))
+    ext = rsa_data['ext']
+    
+    '''
+    RSACipher_string = data['RSACipher']
+    c_string = data['c']
+    iv_string = data['iv']
+    ext_string = data['ext']
+    
+    hex_RSACipher = RSACipher_string.encode('utf-8')
+    hex_c = c_string.encode('utf-8')
+    hex_iv = iv_string.encode('utf-8')
+    
+    RSACipher = binascii.unhexlify(hex_RSACipher)
+    c = binascii.unhexlify(hex_c)
+    iv = binascii.unhexlify(hex_iv)
+    ext = ext_string
+    
+    RSACipher_bytes = bytes(RSACipher)
+    c_bytes = bytes(c)
+    iv_bytes = bytes(iv)
+    '''
+    
+    key = private_key.decrypt(
+            RSACipher,
+            asymmetric.padding.OAEP(
+                mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+                )
+            )
+    
+    #key_bytes = bytes()
+    
+    #MyfileDecrypt()
+    
+    #Decrypting...
+
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), default_backend())
+    
+    decryptor = cipher.decryptor()
+    
+    originalfile_bytes_padded = decryptor.update(c) + decryptor.finalize()
+    
+    unpadder = padding.PKCS7(128).unpadder()
+    data = unpadder.update(originalfile_bytes_padded)
+    
+    originalfile_bytes = data + unpadder.finalize()
+    
+    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//rsa_output"
+    savefilePath += str(ext)
+    
+    f = open(savefilePath, "wb")
+    f.write(bytearray(originalfile_bytes))
+    f.close()
+    
+    print(originalfile_bytes)
+
+    
 
 def main():
-    
-    #new_key = rsa.generate(1024, e=65537) 
-    #public_key = new_key.publickey().exportKey("PEM") 
-    #private_key = new_key.exportKey("PEM") 
     
     new_key = RSA.generate(4096)
     
     public_key = new_key.publickey().exportKey("PEM")
-    f = open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem', 'wb')
+    f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem', 'wb')
     f.write(public_key)
     f.close()
     
     private_key = new_key.exportKey("PEM")
-    f = open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem', 'wb')
+    f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem', 'wb')
     f.write(private_key)
     f.close()
     
-    filepath = "C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//unknown.png"
-    RSA_PublicKey_filepath = 'C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem'
+    filepath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//unknown.png"
+    RSA_PublicKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem'
+    RSA_PrivateKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem'
     
-    print(MyRSAEncrypt(filepath, RSA_PublicKey_filepath))
+    MyRSAEncrypt(filepath, RSA_PublicKey_filepath)
+    
+    MyRSADecrypt(RSA_PrivateKey_filepath)
