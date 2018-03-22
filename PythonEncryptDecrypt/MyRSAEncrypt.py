@@ -128,96 +128,77 @@ def MyfileDecrypt():
 
 def MyRSAEncrypt(filepath, RSA_PublicKey_filepath):
     
-    MyfileEncrypt(filepath)
-    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
+    #Encrypt file
+        MyfileEncrypt(filepath)
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
             data = json.load(f)
     
     #in bytes
-    c = binascii.unhexlify(data['c'].encode('utf-8'))
-    iv = binascii.unhexlify(data['iv'].encode('utf-8'))
-    key = binascii.unhexlify(data['key'].encode('utf-8'))
-    ext = data['ext']
+        c = binascii.unhexlify(data['c'].encode('utf-8'))
+        iv = binascii.unhexlify(data['iv'].encode('utf-8'))
+        key = binascii.unhexlify(data['key'].encode('utf-8'))
+        ext = data['ext']
     
-    with open (RSA_PublicKey_filepath, 'rb') as key_file:
-        public_key = serialization.load_pem_public_key(key_file.read(), default_backend())
+    #open and read public key file
+        with open (RSA_PublicKey_filepath, 'rb') as key_file:
+            public_key = serialization.load_pem_public_key(key_file.read(), default_backend())
         
     #Create cipher for public key
-    RSACipher = public_key.encrypt(
-            key,
-            asymmetric.padding.OAEP(
-                mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label = None
-            )
+        RSACipher = public_key.encrypt(
+                key,
+                asymmetric.padding.OAEP(
+                        mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
+                        algorithm=hashes.SHA256(),
+                        label = None
+                        )
         )
     
-    '''
-    hex_RSACipher = binascii.hexlify(RSACipher)
-    hex_c = binascii.hexlify(c)
-    hex_iv = binascii.hexlify(iv)
-    hex_ext = binascii.hexlify(ext)
-    '''
-    
-    RSACipher_string = binascii.hexlify(RSACipher).decode('utf-8')
-    c_string = binascii.hexlify(c).decode('utf-8')
-    iv_string = binascii.hexlify(iv).decode('utf-8')
-    ext_string = ext
+    #in string
+        RSACipher_string = binascii.hexlify(RSACipher).decode('utf-8')
+        c_string = binascii.hexlify(c).decode('utf-8')
+        iv_string = binascii.hexlify(iv).decode('utf-8')
+        ext_string = ext
     
     #Write to JSON
-    data = {'RSACipher': RSACipher_string, 
-            'c': c_string,
-            'iv': iv_string,
-            'ext': ext_string
-            }
-    
-    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'w') as f:
-        json.dump(data, f)
+        data = {'RSACipher': RSACipher_string, 
+                'c': c_string,
+                'iv': iv_string,
+                'ext': ext_string
+                }
+   
+    #write data to rsa_data.json
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'w') as f:
+            json.dump(data, f)
     
     #return RSACipher, bytes_c, bytes_iv, bytes_ext
     #return hex_RSACipher, hex_c, hex_iv, hex_ext
-    return RSACipher, c, iv, ext
-    print (RSACipher, c, iv, ext)
+    
+    #return 
+        print (RSACipher, c, iv, ext)
+        return RSACipher, c, iv, ext
 
 def MyRSADecrypt(RSA_PrivateKey_filepath):
     
-    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'r') as f:
-        rsa_data = json.load(f)
+    #open and read rsa_data
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'r') as f:
+            rsa_data = json.load(f)
     
-    
-    with open(RSA_PrivateKey_filepath, 'rb') as key_file:
-       private_key = serialization.load_pem_private_key(
-                key_file.read(),
-                password = None,
-                backend = default_backend()
-            )
+    #ope, read, and store private key as var
+        with open(RSA_PrivateKey_filepath, 'rb') as key_file:
+            private_key = serialization.load_pem_private_key(
+                    key_file.read(),
+                    password = None,
+                    backend = default_backend()
+                    )
        
     #in bytes
-    RSACipher = binascii.unhexlify(rsa_data['RSACipher'].encode('utf-8'))
-    c = binascii.unhexlify(rsa_data['c'].encode('utf-8'))
-    iv = binascii.unhexlify(rsa_data['iv'].encode('utf-8'))
-    ext = rsa_data['ext']
+        RSACipher = binascii.unhexlify(rsa_data['RSACipher'].encode('utf-8'))
+        c = binascii.unhexlify(rsa_data['c'].encode('utf-8'))
+        iv = binascii.unhexlify(rsa_data['iv'].encode('utf-8'))
+        ext = rsa_data['ext']
     
-    '''
-    RSACipher_string = data['RSACipher']
-    c_string = data['c']
-    iv_string = data['iv']
-    ext_string = data['ext']
-    
-    hex_RSACipher = RSACipher_string.encode('utf-8')
-    hex_c = c_string.encode('utf-8')
-    hex_iv = iv_string.encode('utf-8')
-    
-    RSACipher = binascii.unhexlify(hex_RSACipher)
-    c = binascii.unhexlify(hex_c)
-    iv = binascii.unhexlify(hex_iv)
-    ext = ext_string
-    
-    RSACipher_bytes = bytes(RSACipher)
-    c_bytes = bytes(c)
-    iv_bytes = bytes(iv)
-    '''
-    
-    key = private_key.decrypt(
+    #decrypt private key and store as key 
+        key = private_key.decrypt(
             RSACipher,
             asymmetric.padding.OAEP(
                 mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
@@ -226,33 +207,23 @@ def MyRSADecrypt(RSA_PrivateKey_filepath):
                 )
             )
     
-    #key_bytes = bytes()
-    
-    #MyfileDecrypt()
-    
     #Decrypting...
-
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), default_backend())
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), default_backend())
+        decryptor = cipher.decryptor()
+        originalfile_bytes_padded = decryptor.update(c) + decryptor.finalize()
+        unpadder = padding.PKCS7(128).unpadder()
+        data = unpadder.update(originalfile_bytes_padded)
+        originalfile_bytes = data + unpadder.finalize()
     
-    decryptor = cipher.decryptor()
+        print(originalfile_bytes)
     
-    originalfile_bytes_padded = decryptor.update(c) + decryptor.finalize()
+    #Save file 
+        savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//NSA_Highly_Classified"
+        savefilePath += str(ext)
     
-    unpadder = padding.PKCS7(128).unpadder()
-    data = unpadder.update(originalfile_bytes_padded)
-    
-    originalfile_bytes = data + unpadder.finalize()
-    
-    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//rsa_output"
-    savefilePath += str(ext)
-    
-    f = open(savefilePath, "wb")
-    f.write(bytearray(originalfile_bytes))
-    f.close()
-    
-    print(originalfile_bytes)
-
-    
+        f = open(savefilePath, "wb")
+        f.write(bytearray(originalfile_bytes))
+        f.close()
 
 def main():
     
@@ -273,5 +244,4 @@ def main():
     RSA_PrivateKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem'
     
     MyRSAEncrypt(filepath, RSA_PublicKey_filepath)
-    
     MyRSADecrypt(RSA_PrivateKey_filepath)
