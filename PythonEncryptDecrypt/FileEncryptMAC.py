@@ -69,7 +69,12 @@ def Decrypt(c, iv, key):
     
     #Convert message in bytes form to string
         return message_bytes
-    
+
+def generateHMAC(HMACkey, message):
+    h = hmac.HMAC(HMACkey, hashes.SHA256(), backend=default_backend())
+    h.update(message)
+    tag = h.finalize    
+    return tag;   
 
 def MyencryptMAC(message, EncKey, HMACKey):
     if(len(encKey) != 32 or len(HMACKey) != 32):
@@ -79,13 +84,37 @@ def MyencryptMAC(message, EncKey, HMACKey):
                 print ("Encryption Key Length:", len(encKey), "bytes")
                 print ("HMAC Key Length:", len(hMacKey), "bytes")
                 print ("The key(s) entered is not 32 byte.")
-                sys.exit(0)    
-
-def generateHMAC(HMACkey, message):
-    h = hmac.HMAC(HMACkey, hashes.SHA256(), backend=default_backend())
-    h.update(message)
-    h.finalize    
-    return h;    
+                sys.exit(0)
+    
+    #Convert to bytes
+        byteEncKey = bytes(encKey, 'utf-8')
+        byteHMACKey = bytes(HMACKey, 'utf-8')
+        byteMessage = bytes(message, 'utf-8')
+    
+    #Pad message
+        padder = padding.PKCS7(128).padder()
+        padded_byteMessage = padder.update(byteMessage)
+        padded_byteMessage += padder.finalize()
+    
+    #Generate IV
+        iv = os.urandom(16)
+    
+    #Create AES CBC Cipher
+        cipher = Cipher(algorithms.AES(byteEncKey), modes.CBC(iv), default_backend())
+    
+    #Encrypt cipher
+        encryptor = cipher.encryptor()
+    
+    #Create ciphertext
+        c = encryptor.update(padded_byteMessage) + encryptor.finalize()
+    
+    #HMAC
+        h = hmac.HMAC(byteHMACKey, hashes.SHA256(), backend=default_back())
+        h.update(c)
+        tag = h.finalize()
+        
+    #Return values 
+        return c, iv, tag
     
 def MyfileEncryptMAC(filepath):
     #Open file as bytes
