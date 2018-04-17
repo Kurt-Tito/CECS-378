@@ -284,7 +284,7 @@ def MydecryptMAC():
 
         return 0
     
-def MyRSAEncrypt(filepath, RSA_PublicKey_filepath)    :
+def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)    :
         
     #Encrypt file
         MyfileEncryptMAC(filepath)
@@ -342,4 +342,61 @@ def MyRSAEncrypt(filepath, RSA_PublicKey_filepath)    :
         print (RSACipher, c, iv, tag, ext)
         return RSACipher, c, iv, tag, ext
     
-
+def MyRSADecryptMAC(RSA_PrivateKey_filepath):
+    
+    #open and read rsa_data
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'r') as f:
+            rsa_data = json.load(f)
+    
+    #open, read, and store private key as var
+        with open(RSA_PrivateKey_filepath, 'rb') as key_file:
+            private_key = serialization.load_pem_private_key(
+                    key_file.read(),
+                    password = None,
+                    backend = default_backend()
+                    )
+       
+    #in bytes
+        RSACipher = binascii.unhexlify(rsa_data['RSACipher'].encode('utf-8'))
+        c = binascii.unhexlify(rsa_data['c'].encode('utf-8'))
+        iv = binascii.unhexlify(rsa_data['iv'].encode('utf-8'))
+        tag = binascii.unhexlify(rsa_data['tag'].encode('utf-8'))
+        ext = rsa_data['ext']
+    
+    #decrypt private key and store as key 
+        key = private_key.decrypt(
+            RSACipher,
+            asymmetric.padding.OAEP(
+                mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+                )
+            )
+    
+    #splitting derived key into encryption key and decryption key
+        encKey = key[0:32]
+        HMACKey = key[32:64]
+    
+        #Verify Tag
+        h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+        h.update(c)
+        h.verify(tag)
+    
+    
+    #Decrypting...
+        cipher = Cipher(algorithms.AES(encKey), modes.CBC(iv), default_backend())
+        decryptor = cipher.decryptor()
+        originalfile_bytes_padded = decryptor.update(c) + decryptor.finalize()
+        unpadder = padding.PKCS7(128).unpadder()
+        data = unpadder.update(originalfile_bytes_padded)
+        originalfile_bytes = data + unpadder.finalize()
+    
+        print(originalfile_bytes)
+    
+    #Save file 
+        savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//output"
+        savefilePath += str(ext)
+    
+        f = open(savefilePath, "wb")
+        f.write(bytearray(originalfile_bytes))
+        f.close()
