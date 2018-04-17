@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from array import array
+import binascii
 
 def Encrypt(message, key):
     #Check if key is less than 32
@@ -77,17 +78,17 @@ def generateHMAC(HMACkey, message):
     return tag;   
 
 def MyencryptMAC(message, EncKey, HMACKey):
-    if(len(encKey) != 32 or len(HMACKey) != 32):
+    if(len(EncKey) != 32 or len(HMACKey) != 32):
         try:
                 raise Exception('ValueError')
         except Exception as error:
-                print ("Encryption Key Length:", len(encKey), "bytes")
-                print ("HMAC Key Length:", len(hMacKey), "bytes")
+                print ("Encryption Key Length:", len(EncKey), "bytes")
+                print ("HMAC Key Length:", len(HMACKey), "bytes")
                 print ("The key(s) entered is not 32 byte.")
                 sys.exit(0)
     
     #Convert to bytes
-        byteEncKey = bytes(encKey, 'utf-8')
+        byteEncKey = bytes(EncKey, 'utf-8')
         byteHMACKey = bytes(HMACKey, 'utf-8')
         byteMessage = bytes(message, 'utf-8')
     
@@ -109,16 +110,42 @@ def MyencryptMAC(message, EncKey, HMACKey):
         c = encryptor.update(padded_byteMessage) + encryptor.finalize()
     
     #HMAC
-        h = hmac.HMAC(byteHMACKey, hashes.SHA256(), backend=default_back())
+        h = hmac.HMAC(byteHMACKey, hashes.SHA256(), backend=default_backend())
         h.update(c)
         tag = h.finalize()
-        
+    
     #Return values 
         return c, iv, tag
+
+def MydecryptMAC(c, iv, tag, encKey, HMACKey):
+    #convert to bytes
+        #c_bytes = binascii.unhexlify(c.encode('utf-8'))
+        HMACKey_bytes = binascii.unhexlify(HMACKey.encode('utf-8'))
+        encKey_bytes = binascii.unhexlify(encKey.encode('utf-8'))
+    
+    #Verify Tag
+        h = hmac.HMAC(HMACKey_bytes, hashes.SHA256(), backend=default_backend())
+        h.update(c)
+        h.verify(tag)
+    
+    #Decrypting...
+        cipher = Cipher(algorithms.AES(encKey_bytes), modes.CBC(iv), default_backend())
+        decryptor = cipher.decryptor()
+        message_bytes_padded = decryptor.update(c) + decryptor.finalize()
+        
+    #Unpadding...
+        unpadder = padding.PKCS7(128).unpadder()
+        message_bytes= unpadder.update(message_bytes_padded) + unpadder.finalize()
+    
+    #Convert to string
+        message = message_bytes.decode('utf-8')
+    
+    #return message
+        return message
     
 def MyfileEncryptMAC(filepath):
     #Open file as bytes
-        with open(filename, "rb") as f:
+        with open(filepath, "rb") as f:
             byte_array = bytearray(f.read())
             content = bytes(byte_array)
         
@@ -127,7 +154,7 @@ def MyfileEncryptMAC(filepath):
         HMACKey = os.urandom(32)
 
     #Get file extension
-        filename, ext = os.path.splitext(filename)
+        filepath, ext = os.path.splitext(filepath)
     
     #Call Encrypt module
         enc = Encrypt(content, encKey)
@@ -136,35 +163,80 @@ def MyfileEncryptMAC(filepath):
         iv = enc [1]
         
         #hash our encrypted message
-        h = generateHMAC(HMACKey, c) #this is the hash of the encrypted message
-    
-    
-        hex_encKey = binascii.hexlify(encKey)
-        hex_HMACKey = binascii.hexlify(HMACKey)
-        hex_iv = binascii.hexlify(iv)
-        hex_h = binascii.hexlify(h)
+        #h = generateHMAC(HMACKey, c) #this is the hash of the encrypted message
         
-        h_string = hex_h.decode('utf-8')
-        iv_string = hex_iv.decode('utf-8')
-        encKey_string = hex_encKey.decode('utf-8')
-        HMACKey_string = hex_HMACKey.decode('utf-8')
+    #HMAC
+        h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+        h.update(c)
+        tag = h.finalize()
+    
+    #convert to string 
+        #hex_h = binascii.hexlify(h)
+        c_string = binascii.hexlify(c).decode('utf-8')
+        #h_string = hex_h.decode('utf-8')
+        tag_string = binascii.hexlify(tag).decode('utf-8')
+        iv_string = binascii.hexlify(iv).decode('utf-8')
+        encKey_string = binascii.hexlify(encKey).decode('utf-8')
+        HMACKey_string = binascii.hexlify(HMACKey).decode('utf-8')
         ext_string = str(ext)
         
         #print("File in bytes converted tos string")
         #print(c_string)
 
     #Write to JSON
-        data = {'h': h_string,
+        data = {'c': c_string,
                 'iv': iv_string,
                 'encKey': encKey_string,
                 'HMACKey': HMACKey_string,
+                'tag': tag_string,
                 'ext': ext_string
         }
         #with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
         #with open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'w') as f:
             json.dump(data, f)
+        
+        return c, iv, encKey, HMACKey, tag, ext
 
+def MyfileDecryptMAC():
+        #with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'r') as f:
+            data = json.load(f)
+        
+    #in bytes
+        c = binascii.unhexlify(data['c'].encode('utf-8'))
+        iv = binascii.unhexlify(data['iv'].encode('utf-8'))
+        encKey = binascii.unhexlify(data['encKey'].encode('utf-8'))
+        HMACKey = binascii.unhexlify(data['HMACKey'].encode('utf-8'))
+        tag = binascii.unhexlify(data['tag'].encode('utf-8'))
+        ext = data['ext']
+    
+    #Verify Tag
+        h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+        h.update(c)
+        h.verify(tag)
+    
+    #Decrypting...
+        cipher = Cipher(algorithms.AES(encKey), modes.CBC(iv), default_backend())
+        decryptor = cipher.decryptor()
+        originalfile_bytes_padded = decryptor.update(c) + decryptor.finalize()
+        unpadder = padding.PKCS7(128).unpadder()
+        data = unpadder.update(originalfile_bytes_padded)
+        originalfile_bytes = data + unpadder.finalize()
+    
+        print(originalfile_bytes)
+        
+    #Save file 
+        savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//MAC_FileEncrypt_output"
+        savefilePath += str(ext)
+    
+        f = open(savefilePath, "wb")
+        f.write(bytearray(originalfile_bytes))
+        f.close()
+        
+        
+
+'''
 def MyRSAEncrypt(filepath, RSA_Publickey_filepath)    :
         
     #Encrypt file
@@ -265,10 +337,10 @@ def MydecryptMAC():
         f.write(bytearray(originalfile_bytes))
         f.close()
 
+        return 0
     
-    
-def MyfileDecryptMAC(filepath):
+#def MyfileDecryptMAC(filepath):
     
 
-def MyRSAEncrypt():
-    
+#def MyRSAEncrypt():
+'''

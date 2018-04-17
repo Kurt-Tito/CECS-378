@@ -1,67 +1,133 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar  1 12:57:35 2018
-@author: winn
+Created on Sat Apr 14 17:57:23 2018
+
+@author: Kurt Tito
+EE 381
 """
 
-import os, sys
-from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
+from scipy.special import comb
 
-def Encrypt(message, key):
-    #Check if key is less than 32
-        if (len(key) < 32):
-            print ("This key is less than 32 bytes")
-            sys.exit(0)
+print("\n PART 1 \n")
+# PART 1
+#   Exercise 1: Calculating binomial probabiliity using its PMF.
+# ------------------------------------------------
+n = 5
+x = 3
+p = 0.7
+
+C = comb(n, x)
+q = 1 - p
+
+prob = (C) * (p**x) * (q**(n-x))
+
+print ('Calculated probabilty: ', prob)
+
+
+#   Simulation 1: Simulating binomial probability
+# ------------------------------------------------
+import random
+
+N = 10000 # The number of repititions 
+
+n = 5
+x = 3
+p = 0.7
+
+trial = [0] #single zero element list 
+trial = trial*n # n elemnt list filled with zero's
+
+j = 0 # accumulator variable initial value zero 
+
+for k in range(N): # outer loop
+    for i in range(n): #each binomial trial a sum of Bermoullie trials 
+        
+        r = random.uniform(0,1)
+        
+        if r < p:
+            trial[i] = 1 # success
+            #print("SUCCESS")
+        else:
+            trial[i] = 0 # failure
+            #print("FAILURE")
             
-    #Convert key and message into bytes
-        message_bytes = bytes(message, 'utf-8')
-        key_bytes = bytes(key, 'utf-8')
-       
-    #Create Padder
-        padder = padding.PKCS7(128).padder()
+    s = sum(trial)
     
-    #Padding message in bytes
-        padded_message_bytes = padder.update(message_bytes) + padder.finalize()
+    if s == x:
+        j += 1 # recording the number of favorable trials 
         
-    #Generate random IV
-        iv = os.urandom(16)
-    
-    #Creates AES CBC cipher
-        cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
-        
-    #Encrypt cipher
-        encryptor = cipher.encryptor()
-    
-    #Create ciphertext
-        ciphertext = encryptor.update(padded_message_bytes) + encryptor.finalize()
-        return ciphertext, iv
-    
+prob = j / N # probability dtermined by frequency of favorable trials
+print("")
+print("Simulated Probability: ", prob) # output
 
-def Decrypt(ciphertext, iv, key):
-    #Convert key to bytes
-        key_bytes = bytes(key, 'utf-8')
-        
-    #Create AES CBC cipher
-        cipher = Cipher(algorithms.AES(key_bytes), modes.CBC(iv), default_backend())
+print("\n PART 2 \n")
+# PART 2
+#   Exercise 2: Calculating Expected (Average) Value
+# ------------------------------------------------
 
-    #Create Decryptor for cipher
-        decryptor = cipher.decryptor()
-    
-    #Original Message but in bytes with padding
-        message_bytes_padded = decryptor.update(ciphertext) + decryptor.finalize()
+n = 5
+p = 0.7
+
+u = n*p
+print("Expected (Average) Value: ", u)
+
+
+#   Simulation 2: Simulating Expected value of binomial r.V. 
+# ---------------------------------------------------
+import random
+
+N = 10000 # The number of repititions 
+
+n = 5
+x = 3
+p = 0.7
+
+trial = [0] #single zero element list 
+trial = trial*n # n elemnt list filled with zero's
+
+j = 0 # accumulator variable initial value zero 
+
+for k in range(N): # outer loop
+    for i in range(n): #each binomial trial a sum of Bermoullie trials 
         
-    #Create unpadder
-        unpadder = padding.PKCS7(128).unpadder()
+        r = random.uniform(0,1)
+        
+        if r < p:
+            trial[i] = 1 # success
+            #print("SUCCESS")
+        else:
+            trial[i] = 0 # failure
+            #print("FAILURE")
+            
+    s = sum(trial)
     
-    #Unpadding message in bytes
-        message_bytes= unpadder.update(message_bytes_padded) + unpadder.finalize()
-    
-    #Convert message in bytes form to string
-        message = message_bytes.decode('utf-8')
-        return message
-    
-    
-    
+    if s == x:
+        j += 1 # recording the number of favorable trials 
+        
+prob = j / N # probability dtermined by frequency of favorable trials
+print("")
+print("Simulated Expected (Average) Value: ", n*prob) # output
+
+
+print("\n PART 3 \n")
+# PART 3
+# ----------------------------------------------------
+import random
+from scipy.stats import binom
+import matplotlib.pyplot as plt
+import numpy as np
+
+N = 10000 # The number of repititions 
+
+n = int(input("Enter number of trials "))
+p = float(input("Enter Probability of Success "))
+
+binomial_sim = data = binom.rvs(n, p, size = 10000)
+print ("Average: ", np.mean(binomial_sim))
+print ("SD: ", np.std(binomial_sim, ddof=1))
+plt.hist(binomial_sim, bins = 10, normed = True)
+plt.xlabel("x")
+plt.ylabel("Probability of Succes")
+plt.show()
+
+

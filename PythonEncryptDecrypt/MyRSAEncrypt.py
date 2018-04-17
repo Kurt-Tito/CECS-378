@@ -128,8 +128,10 @@ def MyfileDecrypt():
 
 def MyRSAEncrypt(filepath, RSA_PublicKey_filepath):
     
-    #Encrypt file
+    #Encrypt file and writes to data.json
         MyfileEncrypt(filepath)
+    
+    #Load json data
         with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
             data = json.load(f)
     
@@ -183,7 +185,7 @@ def MyRSADecrypt(RSA_PrivateKey_filepath):
         with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'r') as f:
             rsa_data = json.load(f)
     
-    #ope, read, and store private key as var
+    #open, read, and store private key as var
         with open(RSA_PrivateKey_filepath, 'rb') as key_file:
             private_key = serialization.load_pem_private_key(
                     key_file.read(),
@@ -218,7 +220,7 @@ def MyRSADecrypt(RSA_PrivateKey_filepath):
         print(originalfile_bytes)
     
     #Save file 
-        savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//NSA_Highly_Classified"
+        savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//output"
         savefilePath += str(ext)
     
         f = open(savefilePath, "wb")
@@ -227,21 +229,25 @@ def MyRSADecrypt(RSA_PrivateKey_filepath):
 
 def main():
     
-    new_key = RSA.generate(4096)
+    #Generate RSA key for key pairs
+        new_key = RSA.generate(4096)
     
-    public_key = new_key.publickey().exportKey("PEM")
-    f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem', 'wb')
-    f.write(public_key)
-    f.close()
+    #create and write public key 
+        public_key = new_key.publickey().exportKey("PEM")
+        f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem', 'wb')
+        f.write(public_key)
+        f.close()
     
-    private_key = new_key.exportKey("PEM")
-    f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem', 'wb')
-    f.write(private_key)
-    f.close()
+    #create and write private key
+        private_key = new_key.exportKey("PEM")
+        f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem', 'wb')
+        f.write(private_key)
+        f.close()
     
-    filepath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//unknown.png"
-    RSA_PublicKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem'
-    RSA_PrivateKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem'
+    #Calling RSA Encryptor Decryptor modules
+        filepath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//unknown.png"
+        RSA_PublicKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem'
+        RSA_PrivateKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem'
     
-    MyRSAEncrypt(filepath, RSA_PublicKey_filepath)
-    MyRSADecrypt(RSA_PrivateKey_filepath)
+        MyRSAEncrypt(filepath, RSA_PublicKey_filepath)
+        MyRSADecrypt(RSA_PrivateKey_filepath)
