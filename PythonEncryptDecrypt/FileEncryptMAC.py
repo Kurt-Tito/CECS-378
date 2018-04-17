@@ -233,61 +233,6 @@ def MyfileDecryptMAC():
         f = open(savefilePath, "wb")
         f.write(bytearray(originalfile_bytes))
         f.close()
-        
-        
-
-'''
-def MyRSAEncrypt(filepath, RSA_Publickey_filepath)    :
-        
-    #Encrypt file
-        MyfileEncrypt(filepath)
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
-            data = json.load(f)
-    
-    #in bytes
-        c = binascii.unhexlify(data['c'].encode('utf-8'))
-        iv = binascii.unhexlify(data['iv'].encode('utf-8'))
-        key = binascii.unhexlify(data['key'].encode('utf-8'))
-        ext = data['ext']
-    
-    #open and read public key file
-        with open (RSA_PublicKey_filepath, 'rb') as key_file:
-            public_key = serialization.load_pem_public_key(key_file.read(), default_backend())
-        
-    #Create cipher for public key
-        RSACipher = public_key.encrypt(
-                key,
-                asymmetric.padding.OAEP(
-                        mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
-                        algorithm=hashes.SHA256(),
-                        label = None
-                        )
-        )
-    
-    #in string
-        RSACipher_string = binascii.hexlify(RSACipher).decode('utf-8')
-        c_string = binascii.hexlify(c).decode('utf-8')
-        iv_string = binascii.hexlify(iv).decode('utf-8')
-        ext_string = ext
-    
-    #Write to JSON
-        data = {'RSACipher': RSACipher_string, 
-                'c': c_string,
-                'iv': iv_string,
-                'ext': ext_string
-                }
-   
-    #write data to rsa_data.json
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'w') as f:
-            json.dump(data, f)
-    
-    #return RSACipher, bytes_c, bytes_iv, bytes_ext
-    #return hex_RSACipher, hex_c, hex_iv, hex_ext
-    
-    #return 
-        print (RSACipher, c, iv, ext)
-        return RSACipher, c, iv, ext
-
     
 def MydecryptMAC():
         
@@ -339,8 +284,62 @@ def MydecryptMAC():
 
         return 0
     
-#def MyfileDecryptMAC(filepath):
+def MyRSAEncrypt(filepath, RSA_PublicKey_filepath)    :
+        
+    #Encrypt file
+        MyfileEncryptMAC(filepath)
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
+            data = json.load(f)
+    
+    #in bytes
+        c = binascii.unhexlify(data['c'].encode('utf-8'))
+        iv = binascii.unhexlify(data['iv'].encode('utf-8'))
+        encKey = binascii.unhexlify(data['encKey'].encode('utf-8'))
+        HMACKey = binascii.unhexlify(data['HMACKey'].encode('utf-8'))
+        ext = data['ext']
+    
+    #concatenate encryption key and hmac key
+        m = encKey + HMACKey
+    #open and read public key file
+        with open (RSA_PublicKey_filepath, 'rb') as key_file:
+            public_key = serialization.load_pem_public_key(key_file.read(), default_backend())
+        
+    #Create cipher for public key
+        RSACipher = public_key.encrypt(m, asymmetric.padding.OAEP(mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
+                        algorithm=hashes.SHA256(),
+                        label = None
+                        )
+        )
+    
+    #Create tag
+        digest = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
+        digest.update(RSACipher)
+        tag = digest.finalize()
+    
+    #in string
+        RSACipher_string = binascii.hexlify(RSACipher).decode('utf-8')
+        c_string = binascii.hexlify(c).decode('utf-8')
+        iv_string = binascii.hexlify(iv).decode('utf-8')
+        tag_string = binascii.hexlify(tag).decode('utf-8')
+        ext_string = ext
+    
+    #Write to JSON
+        data = {'RSACipher': RSACipher_string, 
+                'c': c_string,
+                'iv': iv_string,
+                'tag': tag_string,
+                'ext': ext_string
+                }
+   
+    #write data to rsa_data.json
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'w') as f:
+            json.dump(data, f)
+    
+    #return RSACipher, bytes_c, bytes_iv, bytes_ext
+    #return hex_RSACipher, hex_c, hex_iv, hex_ext
+    
+    #return 
+        print (RSACipher, c, iv, tag, ext)
+        return RSACipher, c, iv, tag, ext
     
 
-#def MyRSAEncrypt():
-'''
