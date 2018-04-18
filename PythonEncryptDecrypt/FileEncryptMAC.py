@@ -10,6 +10,7 @@ from cryptography.hazmat.primitives import padding, serialization, hashes, asymm
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
+from Crypto.PublicKey import RSA
 from array import array
 import binascii
 
@@ -282,13 +283,12 @@ def MydecryptMAC():
         f.write(bytearray(originalfile_bytes))
         f.close()
 
-        return 0
     
 def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)    :
         
     #Encrypt file
         MyfileEncryptMAC(filepath)
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'r') as f:
             data = json.load(f)
     
     #in bytes
@@ -305,7 +305,10 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)    :
             public_key = serialization.load_pem_public_key(key_file.read(), default_backend())
         
     #Create cipher for public key
-        RSACipher = public_key.encrypt(m, asymmetric.padding.OAEP(mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
+        RSACipher = public_key.encrypt(
+                    m, 
+                    asymmetric.padding.OAEP(
+                        mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
                         algorithm=hashes.SHA256(),
                         label = None
                         )
@@ -313,7 +316,7 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)    :
     
     #Create tag
         digest = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
-        digest.update(RSACipher)
+        digest.update(c)
         tag = digest.finalize()
     
     #in string
@@ -332,7 +335,7 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)    :
                 }
    
     #write data to rsa_data.json
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'w') as f:
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMAC_rsa_data.json', 'w') as f:
             json.dump(data, f)
     
     #return RSACipher, bytes_c, bytes_iv, bytes_ext
@@ -345,7 +348,7 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)    :
 def MyRSADecryptMAC(RSA_PrivateKey_filepath):
     
     #open and read rsa_data
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'r') as f:
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMAC_rsa_data.json', 'r') as f:
             rsa_data = json.load(f)
     
     #open, read, and store private key as var
@@ -377,7 +380,7 @@ def MyRSADecryptMAC(RSA_PrivateKey_filepath):
         encKey = key[0:32]
         HMACKey = key[32:64]
     
-        #Verify Tag
+    #Verify Tag
         h = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
         h.update(c)
         h.verify(tag)
@@ -394,9 +397,34 @@ def MyRSADecryptMAC(RSA_PrivateKey_filepath):
         print(originalfile_bytes)
     
     #Save file 
-        savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//output"
+        savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//RSA_output_MAC"
         savefilePath += str(ext)
     
         f = open(savefilePath, "wb")
         f.write(bytearray(originalfile_bytes))
         f.close()
+
+def main():
+    
+    #Generate RSA key for key pairs
+        new_key = RSA.generate(4096)
+    
+    #create and write public key 
+        public_key = new_key.publickey().exportKey("PEM")
+        f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem', 'wb')
+        f.write(public_key)
+        f.close()
+    
+    #create and write private key
+        private_key = new_key.exportKey("PEM")
+        f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem', 'wb')
+        f.write(private_key)
+        f.close()
+    
+    #Calling RSA Encryptor Decryptor modules
+        filepath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//unknown.png"
+        RSA_PublicKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem'
+        RSA_PrivateKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem'
+    
+        MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)
+        MyRSADecryptMAC(RSA_PrivateKey_filepath)
