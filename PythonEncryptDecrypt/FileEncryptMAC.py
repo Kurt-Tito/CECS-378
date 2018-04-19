@@ -284,7 +284,7 @@ def MydecryptMAC():
         f.close()
 
     
-def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)    :
+def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath, fileNumber)    :
         
     #Encrypt file
         MyfileEncryptMAC(filepath)
@@ -335,7 +335,7 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)    :
                 }
    
     #write data to rsa_data.json
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMAC_rsa_data.json', 'w') as f:
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMAC_rsa_data'+ fileNumber + '.json', 'w+') as f:
             json.dump(data, f)
     
     #return RSACipher, bytes_c, bytes_iv, bytes_ext
@@ -345,10 +345,10 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)    :
         print (RSACipher, c, iv, tag, ext)
         return RSACipher, c, iv, tag, ext
     
-def MyRSADecryptMAC(RSA_PrivateKey_filepath):
+def MyRSADecryptMAC(RSA_PrivateKey_filepath, fileNumber):
     
     #open and read rsa_data
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMAC_rsa_data.json', 'r') as f:
+        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMAC_rsa_data'+ fileNumber + '.json', 'r') as f:
             rsa_data = json.load(f)
     
     #open, read, and store private key as var
@@ -403,6 +403,7 @@ def MyRSADecryptMAC(RSA_PrivateKey_filepath):
         f = open(savefilePath, "wb")
         f.write(bytearray(originalfile_bytes))
         f.close()
+        os.remove(rsa_data)
 
 def main():
     
@@ -429,12 +430,22 @@ def main():
         MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)
         MyRSADecryptMAC(RSA_PrivateKey_filepath)
 
-
+    #Compile a list of filenames in he folder
         for filename in os.listdir(os.getcwd()):
             listOfFileNames = filename
-
+    #For each file, we're going to encrypt it using rsa encrypt
+        counter = 0
         for i in listOfFileNames:
-            MyRSAEncryptMAC(i, RSA_PublicKey_filepath)
+            MyRSAEncryptMAC(i, RSA_PublicKey_filepath, counter)
+            counter++
+    while true
+        input = print("Would you like to decrypt? Y/N")
+        input = input.upper()
+        if input == 'Y':
+            counter = 0
+            for i in listOfFileNames:
+                MyRSADecryptMAC(RSA_PrivateKey_filepath, counter)
+                counter++
 
 
 
