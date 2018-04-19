@@ -398,7 +398,7 @@ def MyRSADecryptMAC(RSA_PrivateKey_filepath, fileNumber):
     print(originalfile_bytes)
     
     #Save file 
-    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//RSA_output_MAC"
+    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//RSA_output_MAC" + fileNumber
     savefilePath += str(ext)
     
     f = open(savefilePath, "wb")
