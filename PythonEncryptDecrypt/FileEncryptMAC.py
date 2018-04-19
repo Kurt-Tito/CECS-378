@@ -19,8 +19,8 @@ from os.path import isfile, join
 def Encrypt(message, key):
     #Check if key is less than 32
     if (len(key) < 32):
-    	print ("This key is less than 32 bytes")
-    	sys.exit(0)
+        print ("This key is less than 32 bytes")
+        sys.exit(0)
 
     #Convert key and message into bytes
     message_bytes = bytes(message)
@@ -76,20 +76,20 @@ def Decrypt(c, iv, key):
 
 '''
 def generateHMAC(HMACkey, message):
-    	h = hmac.HMAC(HMACkey, hashes.SHA256(), backend=default_backend())
-    	h.update(message)
-    	tag = h.finalize    
-    	return tag;   
+        h = hmac.HMAC(HMACkey, hashes.SHA256(), backend=default_backend())
+        h.update(message)
+        tag = h.finalize    
+        return tag;   
 
-    	def MyencryptMAC(message, EncKey, HMACKey):
-    		if(len(EncKey) != 32 or len(HMACKey) != 32):
-    			try:
-    				raise Exception('ValueError')
-    			except Exception as error:
-    				print ("Encryption Key Length:", len(EncKey), "bytes")
-    				print ("HMAC Key Length:", len(HMACKey), "bytes")
-    				print ("The key(s) entered is not 32 byte.")
-    				sys.exit(0)
+        def MyencryptMAC(message, EncKey, HMACKey):
+            if(len(EncKey) != 32 or len(HMACKey) != 32):
+                try:
+                    raise Exception('ValueError')
+                except Exception as error:
+                    print ("Encryption Key Length:", len(EncKey), "bytes")
+                    print ("HMAC Key Length:", len(HMACKey), "bytes")
+                    print ("The key(s) entered is not 32 byte.")
+                    sys.exit(0)
 
     #Convert to bytes
     byteEncKey = bytes(EncKey, 'utf-8')
@@ -151,8 +151,8 @@ def MydecryptMAC(c, iv, tag, encKey, HMACKey):
 def MyfileEncryptMAC(filepath):
     #Open file as bytes
     with open(filepath, "rb") as f:
-    	byte_array = bytearray(f.read())
-    	content = bytes(byte_array)
+        byte_array = bytearray(f.read())
+        content = bytes(byte_array)
 
     #Generate keys
     encKey = os.urandom(32)
@@ -198,14 +198,14 @@ def MyfileEncryptMAC(filepath):
     }
         #with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
         #with open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
-    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'w') as f:
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//HMACdata.json', 'w') as f:
         json.dump(data, f)
 
     return c, iv, encKey, HMACKey, tag, ext
 
 def MyfileDecryptMAC():
         #with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
-    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'r') as f:
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//HMACdata.json', 'r') as f:
         data = json.load(f)
 
     #in bytes
@@ -232,7 +232,7 @@ def MyfileDecryptMAC():
     print(originalfile_bytes)
     
     #Save file 
-    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//MAC_FileEncrypt_output"
+    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//MAC_FileEncrypt_output"
     savefilePath += str(ext)
     
     f = open(savefilePath, "wb")
@@ -242,16 +242,16 @@ def MyfileDecryptMAC():
 def MydecryptMAC():
 
     #open and read rsa_data
-    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//rsa_data.json', 'r') as f:
-    	rsa_data = json.load(f)
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//rsa_data.json', 'r') as f:
+        rsa_data = json.load(f)
 
     #ope, read, and store private key as var
     with open(RSA_PrivateKey_filepath, 'rb') as key_file:
-    	private_key = serialization.load_pem_private_key(
-    		key_file.read(),
-    		password = None,
-    		backend = default_backend()
-    		)
+        private_key = serialization.load_pem_private_key(
+            key_file.read(),
+            password = None,
+            backend = default_backend()
+            )
 
     #in bytes
     RSACipher = binascii.unhexlify(rsa_data['RSACipher'].encode('utf-8'))
@@ -261,13 +261,13 @@ def MydecryptMAC():
     
     #decrypt private key and store as key 
     key = private_key.decrypt(
-    	RSACipher,
-    	asymmetric.padding.OAEP(
-    		mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
-    		algorithm=hashes.SHA256(),
-    		label=None
-    		)
-    	)
+        RSACipher,
+        asymmetric.padding.OAEP(
+            mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+            )
+        )
     
     #Decrypting...
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), default_backend())
@@ -280,7 +280,7 @@ def MydecryptMAC():
     print(originalfile_bytes)
     
     #Save file 
-    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Output//NSA_Highly_Classified"
+    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//NSA_Highly_Classified"
     savefilePath += str(ext)
     
     f = open(savefilePath, "wb")
@@ -291,8 +291,8 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath, fileNumber)    :
 
     #Encrypt file
     MyfileEncryptMAC(filepath)
-    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'r') as f:
-    	data = json.load(f)
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//HMACdata.json', 'r') as f:
+        data = json.load(f)
 
     #in bytes
     c = binascii.unhexlify(data['c'].encode('utf-8'))
@@ -305,17 +305,17 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath, fileNumber)    :
     m = encKey + HMACKey
     #open and read public key file
     with open (RSA_PublicKey_filepath, 'rb') as key_file:
-    	public_key = serialization.load_pem_public_key(key_file.read(), default_backend())
+        public_key = serialization.load_pem_public_key(key_file.read(), default_backend())
 
     #Create cipher for public key
     RSACipher = public_key.encrypt(
-    	m, 
-    	asymmetric.padding.OAEP(
-    		mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
-    		algorithm=hashes.SHA256(),
-    		label = None
-    		)
-    	)
+        m, 
+        asymmetric.padding.OAEP(
+            mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label = None
+            )
+        )
     
     #Create tag
     digest = hmac.HMAC(HMACKey, hashes.SHA256(), backend=default_backend())
@@ -335,15 +335,16 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath, fileNumber)    :
     'iv': iv_string,
     'tag': tag_string,
     'ext': ext_string
+    
     }
     
     #write data to rsa_data.json
-    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//HMAC_rsa_data'+ fileNumber + '.json', 'w+') as f:
-    	json.dump(data, f)
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//HMAC_rsa_data'+ str(fileNumber) + '.json', 'w+') as f:
+        json.dump(data, f)
 
     #return RSACipher, bytes_c, bytes_iv, bytes_ext
     #return hex_RSACipher, hex_c, hex_iv, hex_ext
-    
+    os.remove(filepath)
     #return 
     print (RSACipher, c, iv, tag, ext)
     return RSACipher, c, iv, tag, ext
@@ -351,16 +352,16 @@ def MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath, fileNumber)    :
 def MyRSADecryptMAC(RSA_PrivateKey_filepath, fileNumber):
 
     #open and read rsa_data
-    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//HMAC_rsa_data'+ fileNumber + '.json', 'r') as f:
-    	rsa_data = json.load(f)
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//HMAC_rsa_data'+ str(fileNumber) + '.json', 'r') as z:
+        rsa_data = json.load(z)
 
     #open, read, and store private key as var
     with open(RSA_PrivateKey_filepath, 'rb') as key_file:
-    	private_key = serialization.load_pem_private_key(
-    		key_file.read(),
-    		password = None,
-    		backend = default_backend()
-    		)
+        private_key = serialization.load_pem_private_key(
+            key_file.read(),
+            password = None,
+            backend = default_backend()
+            )
 
     #in bytes
     RSACipher = binascii.unhexlify(rsa_data['RSACipher'].encode('utf-8'))
@@ -371,13 +372,13 @@ def MyRSADecryptMAC(RSA_PrivateKey_filepath, fileNumber):
     
     #decrypt private key and store as key 
     key = private_key.decrypt(
-    	RSACipher,
-    	asymmetric.padding.OAEP(
-    		mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
-    		algorithm=hashes.SHA256(),
-    		label=None
-    		)
-    	)
+        RSACipher,
+        asymmetric.padding.OAEP(
+            mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+            )
+        )
     
     #splitting derived key into encryption key and decryption key
     encKey = key[0:32]
@@ -400,13 +401,13 @@ def MyRSADecryptMAC(RSA_PrivateKey_filepath, fileNumber):
     print(originalfile_bytes)
     
     #Save file 
-    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//RSA_output_MAC" + fileNumber
+    savefilePath = "C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//RSA_output_MAC" + str(fileNumber)
     savefilePath += str(ext)
     
     f = open(savefilePath, "wb")
     f.write(bytearray(originalfile_bytes))
     f.close()
-    os.remove(rsa_data)
+    os.remove('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//HMAC_rsa_data'+ str(fileNumber) +'.JSON')
 
 def main():
 
@@ -415,7 +416,7 @@ def main():
     
     #create and write public key 
     public_key = new_key.publickey().exportKey("PEM")
-    f = open('rsa_public_key.pem', 'wb')
+    f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem', 'wb')
     f.write(public_key)
     f.close()
     
@@ -430,27 +431,26 @@ def main():
     RSA_PublicKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem'
     RSA_PrivateKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem'
     
-    MyRSAEncryptMAC(mypath, RSA_PublicKey_filepath)
-    MyRSADecryptMAC(RSA_PrivateKey_filepath)
+    #MyRSAEncryptMAC(mypath, RSA_PublicKey_filepath)
+    #MyRSADecryptMAC(RSA_PrivateKey_filepath)
 
     #Compile a list of filenames in he folder
     listOfFileNames = [f for f in listdir(mypath) if isfile(join(mypath, f))]
     #For each file, we're going to encrypt it using rsa encrypt
     counter = 0
     for i in listOfFileNames:
-    	MyRSAEncryptMAC(i, RSA_PublicKey_filepath, counter)
-    	counter += 1
-    	while (counter > 0):
-    		input = print("Would you like to decrypt? Y/N")
-    		input = input.upper()
-    		if input == 'Y':
-    			counter = 0
-    			for i in listOfFileNames:
-    				MyRSADecryptMAC(RSA_PrivateKey_filepath, counter)
-    				counter += 1
-    				break
-
-
-
+        MyRSAEncryptMAC('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//TestFolder//' + i, RSA_PublicKey_filepath, counter)
+        counter += 1
+        checker = True
+    while (checker):
+        asdf = input("Would you like to decrypt? Y/N ")
+        asdf = asdf.upper()
+        if asdf == 'Y':
+            counter = 0
+            for i in listOfFileNames:
+                MyRSADecryptMAC(RSA_PrivateKey_filepath, counter)
+                counter += 1
+    
+            checker = False
 
 
