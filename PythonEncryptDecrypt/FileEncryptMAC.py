@@ -74,6 +74,7 @@ def Decrypt(c, iv, key):
     #Convert message in bytes form to string
     return message_bytes
 
+'''
 def generateHMAC(HMACkey, message):
     	h = hmac.HMAC(HMACkey, hashes.SHA256(), backend=default_backend())
     	h.update(message)
@@ -119,6 +120,7 @@ def generateHMAC(HMACkey, message):
     
     #Return values 
     return c, iv, tag
+'''
 
 def MydecryptMAC(c, iv, tag, encKey, HMACKey):
     #convert to bytes
@@ -127,24 +129,24 @@ def MydecryptMAC(c, iv, tag, encKey, HMACKey):
         encKey_bytes = binascii.unhexlify(encKey.encode('utf-8'))
         
     #Verify Tag
-    h = hmac.HMAC(HMACKey_bytes, hashes.SHA256(), backend=default_backend())
-    h.update(c)
-    h.verify(tag)
+        h = hmac.HMAC(HMACKey_bytes, hashes.SHA256(), backend=default_backend())
+        h.update(c)
+        h.verify(tag)
     
     #Decrypting...
-    cipher = Cipher(algorithms.AES(encKey_bytes), modes.CBC(iv), default_backend())
-    decryptor = cipher.decryptor()
-    message_bytes_padded = decryptor.update(c) + decryptor.finalize()
+        cipher = Cipher(algorithms.AES(encKey_bytes), modes.CBC(iv), default_backend())
+        decryptor = cipher.decryptor()
+        message_bytes_padded = decryptor.update(c) + decryptor.finalize()
     
     #Unpadding...
-    unpadder = padding.PKCS7(128).unpadder()
-    message_bytes= unpadder.update(message_bytes_padded) + unpadder.finalize()
+        unpadder = padding.PKCS7(128).unpadder()
+        message_bytes= unpadder.update(message_bytes_padded) + unpadder.finalize()
     
     #Convert to string
-    message = message_bytes.decode('utf-8')
+        message = message_bytes.decode('utf-8')
     
     #return message
-    return message
+        return message
     
 def MyfileEncryptMAC(filepath):
     #Open file as bytes
@@ -161,9 +163,9 @@ def MyfileEncryptMAC(filepath):
     
     #Call Encrypt module
     enc = Encrypt(content, encKey)
-        c = enc[0] #this is our encrypted message
+    c = enc[0] #this is our encrypted message
         #print(c)
-        iv = enc [1]
+    iv = enc [1]
         
         #hash our encrypted message
         #h = generateHMAC(HMACKey, c) #this is the hash of the encrypted message
@@ -175,13 +177,13 @@ def MyfileEncryptMAC(filepath):
     
     #convert to string 
         #hex_h = binascii.hexlify(h)
-        c_string = binascii.hexlify(c).decode('utf-8')
+    c_string = binascii.hexlify(c).decode('utf-8')
         #h_string = hex_h.decode('utf-8')
-        tag_string = binascii.hexlify(tag).decode('utf-8')
-        iv_string = binascii.hexlify(iv).decode('utf-8')
-        encKey_string = binascii.hexlify(encKey).decode('utf-8')
-        HMACKey_string = binascii.hexlify(HMACKey).decode('utf-8')
-        ext_string = str(ext)
+    tag_string = binascii.hexlify(tag).decode('utf-8')
+    iv_string = binascii.hexlify(iv).decode('utf-8')
+    encKey_string = binascii.hexlify(encKey).decode('utf-8')
+    HMACKey_string = binascii.hexlify(HMACKey).decode('utf-8')
+    ext_string = str(ext)
         
         #print("File in bytes converted tos string")
         #print(c_string)
@@ -196,15 +198,15 @@ def MyfileEncryptMAC(filepath):
     }
         #with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
         #with open('C://Users//TITO//Documents//California State University Long Beach//CSULB Spring 2018//CECS 378 LAB//CECS-378//PythonEncryptDecrypt//data.json', 'w') as f:
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'w') as f:
-        	json.dump(data, f)
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'w') as f:
+        json.dump(data, f)
 
-        	return c, iv, encKey, HMACKey, tag, ext
+    return c, iv, encKey, HMACKey, tag, ext
 
-        	def MyfileDecryptMAC():
+def MyfileDecryptMAC():
         #with open('C://Users//winn//Documents//GitHub//CECS-378//PythonEncryptDecrypt//data.json', 'r') as f:
-        with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'r') as f:
-        	data = json.load(f)
+    with open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//HMACdata.json', 'r') as f:
+        data = json.load(f)
 
     #in bytes
     c = binascii.unhexlify(data['c'].encode('utf-8'))
@@ -413,7 +415,7 @@ def main():
     
     #create and write public key 
     public_key = new_key.publickey().exportKey("PEM")
-    f = open('C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem', 'wb')
+    f = open('rsa_public_key.pem', 'wb')
     f.write(public_key)
     f.close()
     
@@ -428,7 +430,7 @@ def main():
     RSA_PublicKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_public_key.pem'
     RSA_PrivateKey_filepath = 'C://Users//Kurt Tito//Desktop//CECS-378//PythonEncryptDecrypt//Keys//rsa_private_key.pem'
     
-    MyRSAEncryptMAC(filepath, RSA_PublicKey_filepath)
+    MyRSAEncryptMAC(mypath, RSA_PublicKey_filepath)
     MyRSADecryptMAC(RSA_PrivateKey_filepath)
 
     #Compile a list of filenames in he folder
@@ -437,15 +439,15 @@ def main():
     counter = 0
     for i in listOfFileNames:
     	MyRSAEncryptMAC(i, RSA_PublicKey_filepath, counter)
-    	counter++
-    	while true:
+    	counter += 1
+    	while (counter > 0):
     		input = print("Would you like to decrypt? Y/N")
     		input = input.upper()
     		if input == 'Y':
     			counter = 0
     			for i in listOfFileNames:
     				MyRSADecryptMAC(RSA_PrivateKey_filepath, counter)
-    				counter++
+    				counter += 1
     				break
 
 
